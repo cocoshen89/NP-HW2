@@ -11,7 +11,9 @@
 #define MAX_People 10
 #define NAME_LIEN 20
 #define SERV_PORT 8080
-
+struct player{
+	int p1,p2;
+};
 int connect_fd[MAX_People];
 char user[MAX_People][NAME_LIEN];
 int game_state[MAX_People];
@@ -21,8 +23,9 @@ void init_connectFd_user();
 void server_control(int listen_fd);
 void show_setting();
 void server_receive_send(int n);
-void game(int p1,int p2);
+void game(struct player *tmp);
 int check_win(char board[9],char piece);
+
 int main()
 {
 	int listen_fd,i;
@@ -265,14 +268,35 @@ void server_receive_send(int n)
 				send(connect_fd[target_idx], game_msg, MAX_LINE, 0);
 				game_state[n] = target_idx;
 				game_state[target_idx] = n;
-				game(n, target_idx);
+				pthread_t serv_game;
+				struct player tmp;
+				tmp.p1 = n;
+				tmp.p2 = target_idx;
+				pthread_create(malloc(sizeof(serv_game)), NULL, (void*)(&game), (void *)&tmp);
+				//game(n, target_idx);
 				fprintf(stderr,"%s vs %s Game terminated ...\n", user_name, target_user);
+			}
+			else if(strncmp(msg_rcv, "/boardcast", 10) == 0)
+			{
+				sprintf(msg_send, "<Boardcast> contest : ");
+				send(connect_fd[n], msg_send, MAX_LINE, 0);
+				recv_length = recv(connect_fd[n], message, MAX_LINE, 0);
+				message[recv_length] = '\0';
+				sprintf(msg_send, "<Boardcast> %s : %s", user[n], message);
+				for(i = 0; i < MAX_People; i++){
+					if(connect_fd[i] != -1 && i != n){
+						send(connect_fd[i], msg_send, MAX_LINE, 0);
+					}
+				}
 			}
 		}
 	}
 }
-void game(int p1,int p2)
+void game(struct player *tmp)
 {
+	int p1,p2;
+	p1 = tmp->p1;
+	p2 = tmp->p2;
 	int i,recv_length,move;
 	char OX[MAX_People];
 	char board[9];
