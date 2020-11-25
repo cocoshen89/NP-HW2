@@ -99,7 +99,9 @@ void* recv_msg()
 			else{		
 					printf("%s", msg);
 					if(strncmp(msg,"<Private chat>",14) != 0)
-					printf("%s>",user_name);
+						printf("%s>",user_name);
+					else
+						printf("\n%s>",user_name);
 			}
 		}
 	}
@@ -109,12 +111,12 @@ void send_msg()
 	char message[MAX_LINE];
 	memset(message, '\0', sizeof(message));
 	sprintf(message, "%s", user_name);
-	send(server_fd, user_name, MAX_LINE, 0);
+	send(server_fd, user_name, strlen(user_name), 0);
 	memset(message, '\0', sizeof(message));
 	while(fgets(message, MAX_LINE, stdin) != NULL){
 		printf("%s>",user_name);
 		if((strncmp(message, "/quit", 5) ==0) || (strncmp(message, "/q", 2) == 0)){
-			send(server_fd, message, MAX_LINE, 0);
+			send(server_fd, message, strlen(message), 0);
 			printf("Close connection...\n");
 			exit(0);
 		}
@@ -123,7 +125,7 @@ void send_msg()
 			memset(message, '\0', sizeof(message));	// don't need to send
 			continue;
 		}
-		send(server_fd, message, MAX_LINE, 0);
+		send(server_fd, message, strlen(message), 0);
 		memset(message, '\0', sizeof(message));	// reset after sending
   	}
 }
