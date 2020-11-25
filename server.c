@@ -209,7 +209,6 @@ void server_receive_send(int n)
 				recv_length = recv(connect_fd[n], message, MAX_LINE, 0);
 				message[recv_length] = '\0';
 				sprintf(msg_send, "<Private chat> %s : %s", user_name, message);
-
 				//send private message
 				send(connect_fd[i], msg_send, MAX_LINE, 0);
 			}
@@ -232,7 +231,7 @@ void server_receive_send(int n)
 						if(game_state[n] == -1 && game_state[i] == -1){
 							fprintf(stderr,"Target player founding...\n");
 							memset(msg_send,'\0',sizeof(msg_send));
-							sprintf(msg_send, " <SERVER> Enter Y or y to accept the game with %s?\n", serv_msg4, user[n]);
+							sprintf(msg_send, " <SERVER> Enter Y or y to accept the game with %s?\n", user[n]);
 							send(connect_fd[i], msg_send, MAX_LINE, 0);
 							target_idx = i;
 							game_state[n] = target_idx;
